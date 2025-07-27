@@ -222,7 +222,7 @@
         }
 
         function updateAllResults() {
-            tournaments.forEach((_, i) => {
+            tournaments.forEach((tournamentName, i) => {
                 for (let j = 0; j < matchesPerTournament; j++) {
                     const id = `${i}-${j}`;
                     const aEl = document.getElementById(`score-${id}-a`);
@@ -235,11 +235,13 @@
                     result.className = "text-center text-base mt-3 font-bold transition";
                     result.classList.remove("winner");
 
+                    const [teamA, teamB] = teamPairsByTournament[tournamentName][j];
+
                     if (a > b) {
-                        result.textContent = `🏆 ${teamPairs[j % teamPairs.length][0]} gewinnt`;
+                        result.textContent = `🏆 ${teamA} gewinnt`;
                         result.classList.add("text-green-700", "winner");
                     } else if (b > a) {
-                        result.textContent = `🏆 ${teamPairs[j % teamPairs.length][1]} gewinnt`;
+                        result.textContent = `🏆 ${teamB} gewinnt`;
                         result.classList.add("text-green-700", "winner");
                     } else if (a === 0 && b === 0) {
                         result.textContent = "";
@@ -250,6 +252,7 @@
                 }
             });
         }
+
 
         function resetScores(tournamentIndex) {
             for (let j = 0; j < matchesPerTournament; j++) {
