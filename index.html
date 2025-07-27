@@ -116,19 +116,50 @@
     <script>
         const tournaments = ["Cornhole", "Fußball", "T-Shirt-Staffel", "Wasserpong"];
         const matchesPerTournament = 5;
-        const matchTimes = ["9:30 Uhr", "9:45 Uhr", "10:15 Uhr", "11:00 Uhr", "12:00 Uhr"];
-        const teamPairs = [
-            ["THE PEPSIS", "LOS GOONERS"],
-            ["PHOTOCRASH", "DIE BALLER-INAS"],
-            ["BRAINSTORMING", "MIX"],
-            ["DIE PRO-FIeS", "NEIN"],
-            ["DIE ELITE", "TEAM B"]
-        ];
+        const matchTimesByTournament = {
+            "Cornhole": ["9:30 Uhr", "9:45 Uhr", "10:15 Uhr", "11:45 Uhr", "12:00 Uhr"],
+            "Fußball": ["09:30 Uhr", "10:00 Uhr", "10:15 Uhr", "11:15 Uhr", "11:30 Uhr"],
+            "T-Shirt-Staffel": ["09:45 Uhr", "10:00 Uhr", "10:15 Uhr", "10:30 Uhr", "11:45 Uhr"],
+            "Wasserpong": ["10:30 Uhr", "11:15 Uhr", "11:30 Uhr", "11:45 Uhr", "12:00 Uhr"]
+        };
+
+        const teamPairsByTournament = {
+            "Cornhole": [
+                ["THE PEPSIS", "LOS GOONERS"],
+                ["PHOTOCRASH", "DIE BALLER-INAS"],
+                ["BRAINSTORMING", "MIX"],
+                ["DIE PRO-FIeS", "NEIN"],
+                ["DIE ELITE", "TEAM B"]
+            ],
+            "Fußball": [
+                ["TEAM B", "BRAINSTORMING"],
+                ["THE PEPSIS", "MIX"],
+                ["DIE PRO-FIeS", "PHOTOCRASH"],
+                ["LOS GOONERS", "DIE ELITE"],
+                ["DIE BALLER-INAS", "NEIN"]
+            ],
+            "T-Shirt-Staffel": [
+                ["TEAM B", "BRAINSTORMING"],
+                ["LOS GOONERS", "PHOTOCRASH"],
+                ["NEIN", "DIE ELITE"],
+                ["DIE BALLER-INAS", "DIE PRO-FIeS"],
+                ["THE PEPSIS", "MIX"]
+            ],
+            "Wasserpong": [
+                ["THE PEPSIS", "DIE ELITE"],
+                ["TEAM B", "PHOTOCRASH"],
+                ["DIE PRO-FIeS", "BRAINSTORMING"],
+                ["DIE BALLER-INAS", "LOS GOONERS"],
+                ["NEIN", "MIX"]
+            ]
+        };
+
 
         function renderMatch(i, matchIndex) {
-            const [teamA, teamB] = teamPairs[matchIndex % teamPairs.length];
+            const tournamentName = tournaments[i];
+            const [teamA, teamB] = teamPairsByTournament[tournamentName][matchIndex];
             const id = `${i}-${matchIndex}`;
-            const time = matchTimes[matchIndex % matchTimes.length];
+            const time = matchTimesByTournament[tournaments[i]][matchIndex % matchTimesByTournament[tournaments[i]].length];
 
             return `
         <div class="bg-gray-50 px-4 py-2 rounded-lg shadow border border-gray-200 w-full max-w-[520px] mx-auto">
