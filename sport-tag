@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ProGenius Sommer-Challenge 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .winner {
+            background-color: #bbf7d0;
+            animation: pulse 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(1.02);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 2s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animated-title {
+            background: linear-gradient(90deg, #6366f1, #14b8a6);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+
+        .team-name {
+            word-break: break-word;
+            white-space: normal;
+        }
+
+        input:disabled {
+            background-color: #f3f4f6;
+            cursor: not-allowed;
+        }
+
+        .slide-transition {
+            opacity: 0;
+            transform: translateX(30px);
+            transition: all 0.8s ease;
+            position: absolute;
+            width: 100%;
+        }
+
+        .slide-transition.active {
+            opacity: 1;
+            transform: translateX(0);
+            position: relative;
+        }
+
+        #slideshow-container {
+            position: relative;
+            overflow: hidden;
+            padding: 0;
+            min-height: auto;
+            max-width: 100vw;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen px-4 sm:px-12 md:px-20 lg:px-32 py-8">
+
+    <!-- 🔐 Login -->
+    <div id="login" class="bg-white p-6 rounded shadow max-w-sm mx-auto mt-24 text-center">
+        <h2 class="text-2xl font-bold mb-4 text-indigo-600">🔐 Admin Login</h2>
+        <input type="password" id="password" placeholder="Passwort"
+            class="w-full p-2 border rounded mb-4 focus:outline-indigo-400">
+        <button onclick="checkPassword()"
+            class="bg-indigo-600 text-white px-4 py-2 rounded w-full hover:bg-indigo-700">Login</button>
+        <p id="login-error" class="text-red-500 mt-2 hidden">Falsches Passwort</p>
+    </div>
+
+    <!-- 🏆 Main Content -->
+    <div id="main" class="hidden w-full px-4 sm:px-10 lg:px-20">
+
+        <!-- 🎉 Titel -->
+        <div class="text-center mt-6 mb-10 fade-in">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl animated-title">
+                ✨ ProGenius Sommer-Challenge 2025 ✨
+            </h1>
+        </div>
+
+        <!-- 🔄 Turnierübersicht -->
+        <div id="slideshow-container"></div>
+
+    </div>
+
+    <script>
+        const tournaments = ["Cornhole", "Fußball", "T-Shirt-Staffel", "Wasserpong"];
+        const matchesPerTournament = 5;
+        const matchTimes = ["9:30 Uhr", "9:45 Uhr", "10:15 Uhr", "11:00 Uhr", "12:00 Uhr"];
+        const teamPairs = [
+            ["THE PEPSIS", "LOS GOONERS"],
+            ["PHOTOCRASH", "DIE BALLER-INS"],
+            ["BRAINSTORM", "MIX"],
+            ["DIE PRO-FIES", "NEIN"],
+            ["DIE ELITE", "TEAM B"]
+        ];
+
+        function renderMatch(i, matchIndex) {
+            const [teamA, teamB] = teamPairs[matchIndex % teamPairs.length];
+            const id = `${i}-${matchIndex}`;
+            const time = matchTimes[matchIndex % matchTimes.length];
+
+            return `
+        <div class="bg-gray-50 px-4 py-2 rounded-lg shadow border border-gray-200 w-full max-w-[520px] mx-auto">
+          <p class="text-sm text-indigo-500 font-semibold mb-1 text-center">🕒 ${time}</p>
+
+          <div class="flex justify-between items-center text-base font-semibold text-gray-800 mb-2">
+            <span class="w-1/3 text-left team-name">${teamA}</span>
+            <span class="w-1/3 text-center text-indigo-600 text-xl font-bold">⚔️ VS ⚔️</span>
+            <span class="w-1/3 text-right team-name">${teamB}</span>
+          </div>
+
+          <div class="flex justify-between items-center gap-8 mt-3">
+            <input type="number" id="score-${id}-a"
+                class="w-16 h-10 p-1 text-center border border-gray-300 rounded focus:ring-1 focus:ring-indigo-400 transition" />
+            <input type="number" id="score-${id}-b"
+                class="w-16 h-10 p-1 text-center border border-gray-300 rounded focus:ring-1 focus:ring-indigo-400 transition" />
+            </div>
+
+
+          <p id="result-${id}" class="text-center text-sm mt-3 font-medium transition"></p>
+        </div>
+      `;
+        }
+
+        function renderTournaments() {
+            const container = document.getElementById("slideshow-container");
+            const slides = [];
+
+            for (let i = 0; i < tournaments.length; i += 2) {
+                const slide = document.createElement("div");
+                slide.className = "tournament-slide slide-transition flex flex-col sm:flex-row gap-6 justify-center items-start mb-10";
+
+                for (let j = i; j < i + 2 && j < tournaments.length; j++) {
+                    const t = tournaments[j];
+                    const cardHTML = `
+                    <div class="bg-white p-5 rounded-xl shadow-md w-full sm:w-[480px] lg:w-[560px]">
+
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold text-yellow-600">🏆 ${t}</h2>
+                            <div class="flex gap-2">
+                            <button onclick="resetScores(${j})" class="text-sm text-blue-500 hover:text-red-500">🔄 Reset</button>
+                            <button onclick="lockTournament(${j})" class="text-sm text-green-600 hover:text-green-800 font-semibold">✅ Speichern</button>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-3">
+                            ${Array.from({ length: matchesPerTournament }).map((_, m) => renderMatch(j, m)).join("")}
+                        </div>
+                        </div>
+                    `;
+                    slide.innerHTML += cardHTML;
+                }
+
+                slides.push(slide);
+            }
+
+            container.innerHTML = "";
+            slides.forEach(slide => container.appendChild(slide));
+
+            startSlideshow();
+        }
+
+        function updateAllResults() {
+            tournaments.forEach((_, i) => {
+                for (let j = 0; j < matchesPerTournament; j++) {
+                    const id = `${i}-${j}`;
+                    const aEl = document.getElementById(`score-${id}-a`);
+                    const bEl = document.getElementById(`score-${id}-b`);
+                    if (!aEl || aEl.disabled) continue;
+
+                    const a = parseInt(aEl.value) || 0;
+                    const b = parseInt(bEl.value) || 0;
+                    const result = document.getElementById(`result-${id}`);
+                    result.className = "text-center text-sm mt-3 font-medium transition";
+                    result.classList.remove("winner");
+
+                    if (a > b) {
+                        result.textContent = `🏆 ${teamPairs[j % teamPairs.length][0]} gewinnt`;
+                        result.classList.add("text-green-700", "winner");
+                    } else if (b > a) {
+                        result.textContent = `🏆 ${teamPairs[j % teamPairs.length][1]} gewinnt`;
+                        result.classList.add("text-green-700", "winner");
+                    } else if (a === 0 && b === 0) {
+                        result.textContent = "";
+                    } else {
+                        result.textContent = "🤝 Unentschieden";
+                        result.classList.add("text-yellow-500");
+                    }
+                }
+            });
+        }
+
+        function resetScores(tournamentIndex) {
+            for (let j = 0; j < matchesPerTournament; j++) {
+                const id = `${tournamentIndex}-${j}`;
+                const a = document.getElementById(`score-${id}-a`);
+                const b = document.getElementById(`score-${id}-b`);
+                const r = document.getElementById(`result-${id}`);
+                if (a) { a.value = ""; a.disabled = false; }
+                if (b) { b.value = ""; b.disabled = false; }
+                if (r) r.textContent = "";
+            }
+        }
+
+        function lockTournament(tournamentIndex) {
+            for (let j = 0; j < matchesPerTournament; j++) {
+                const id = `${tournamentIndex}-${j}`;
+                const a = document.getElementById(`score-${id}-a`);
+                const b = document.getElementById(`score-${id}-b`);
+                if (a && b && a.value !== "" && b.value !== "") {
+                    a.disabled = true;
+                    b.disabled = true;
+                }
+            }
+        }
+
+
+
+        function checkPassword() {
+            const input = document.getElementById('password').value;
+            if (input === '25') {
+                document.getElementById('login').style.display = 'none';
+                document.getElementById('main').classList.remove('hidden');
+                renderTournaments();
+                setInterval(updateAllResults, 500);
+            } else {
+                document.getElementById('login-error').classList.remove('hidden');
+            }
+        }
+
+        let currentSlide = 0;
+
+        function startSlideshow() {
+            const slides = document.querySelectorAll(".tournament-slide");
+            if (slides.length === 0) return;
+
+            slides.forEach(slide => slide.classList.remove("active"));
+            slides[0].classList.add("active");
+
+            setInterval(() => {
+                slides[currentSlide].classList.remove("active");
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides[currentSlide].classList.add("active");
+            }, 10000);
+        }
+    </script>
+</body>
+
+</html>
